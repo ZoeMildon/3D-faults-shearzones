@@ -11,7 +11,7 @@ Mildon, Z. K., Toda, S., Faure Walker, J. P. and Roberts, G. P. (2016), Evaluati
 3) field data, which includes a value of throw measured over 15 kyr (code developed for fault scarps in central Italy)
 
 ## Running the code
-In MATLAB, navigate to the 'faults_3D_v2.0' folder (or similarly named). Execute the script by entering `shear_zones_3D` in the command line or open the shear_zones_3D script and press F5.
+In MATLAB, navigate to the '3D-faults-shearzones' folder (or similarly named). Execute the script by entering `shear_zones_3D` in the command line or open the shear_zones_3D script and press F5.
 
 The slip distribution will be automatically calculated given the 15kyr throw values given in the field data. Along strike, the code will linearly interpolate between available throw measurements given in the field data file. With depth, the code assumes that the slip profile along the strike of the fault is uniform with depth. The resulting slip distribution is the amount of interseismic slip for one single year.
 
