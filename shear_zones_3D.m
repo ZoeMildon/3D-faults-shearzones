@@ -50,10 +50,8 @@ COUL_GRID_SIZE=10;
 
 %%%%%%%     LOCATION OF DATA FILES
 % Format of data files must be "fault_name  data"
-DIPS_FILE='Data/all_faults_dips_1dp.txt'; 
-%constant_dip=35;
-%shear_zone_dip=65; % use this option for making all shear zones have the
-%same dip, irrespective of the dip of the brittle fault
+DIPS_FILE='Data/fault_dips.txt'; 
+%specified_shear_zone_dip=35; % use this option for making all shear zones have the same dip, irrespective of the dip of the brittle fault
 RAKES_FILE='Data/fault_rakes.txt';
 PROJECTION_DIRECTION_FILE='Data/fault_projection_directions.txt';
 SHORT_FAULT_LENGTHS_FILE='Data/short_fault_lengths.txt';

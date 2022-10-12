@@ -72,17 +72,21 @@ for i=1:length(fault_names)
     %% Extending the fault to depth
     utm_z(:,length(utm_x))=0; % Assuming all faults come to the surface (0m depth)
     
-    % extracting the relevant dip value to use
-     A=exist('shear_zone_dip');
+    % extracting the relevant dip value to use for the fault (brittle
+    % portion)
+    [fault_name_slip,dip_values]=textread(DIPS_FILE,'%s %f');
+    a=strmatch(fault_name,fault_name_slip,'exact');
+    fault_dip=dip_values(a);
+    
+    % extracting the relevant dip value to use for the shear zone
+     A=exist('specified_shear_zone_dip');
     if A==0
-        [fault_name_slip,dip_values]=textread(DIPS_FILE,'%s %f');
-        a=strmatch(fault_name,fault_name_slip,'exact');
-        constant_dip=dip_values(a);
         shear_zone_dip=dip_values(a);
     elseif A==1
+        shear_zone_dip=specified_shear_zone_dip;
     end
-% shear_zone_dip=constant_dip;
-    if isempty(constant_dip)==1
+% shear_zone_dip=fault_dip;
+    if isempty(fault_dip)==1
         msgdip=sprintf('Missing dip information for %s.\nFault not plotted.',fault_name);
         disp(msgdip)
     else
@@ -98,26 +102,26 @@ for i=1:length(fault_names)
             [fault_name_depth,vardepth]=textread(SHORT_FAULT_LENGTHS_FILE,'%s %f');
             c=strmatch(fault_name,fault_name_depth,'exact');
             if isempty(c)==1
-                fault_down_dip_length=depth/sind(constant_dip);
+                fault_down_dip_length=depth/sind(fault_dip);
             else
                 fault_down_dip_length=vardepth(c)*-1000;
             end
             % calculating the grid size to use to depth (to ensure a whole number
             % of boxes, resulting elements will be rectangular rather than square
-            if grid_size<=abs((depth/sind(constant_dip)))
+            if grid_size<=abs((depth/sind(fault_dip)))
                     n=abs(round(fault_down_dip_length/1000)); % whole number of boxes that will fit into the fault_down_dip_length
                     grid_size_to_depth=-fault_down_dip_length/n;
             else 
                     grid_size_to_depth=-fault_down_dip_length;
             end
-            grid_size_surface=grid_size_to_depth*cosd(constant_dip);
-            grid_size_depth=grid_size_to_depth*sind(constant_dip);
+            grid_size_surface=grid_size_to_depth*cosd(fault_dip);
+            grid_size_depth=grid_size_to_depth*sind(fault_dip);
     
             % extracting the relevant projection direction to use
             [fault_name_proj,proj_dir]=textread(PROJECTION_DIRECTION_FILE,'%s %f');
             e=strmatch(fault_name,fault_name_proj,'exact');
             proj_dir=proj_dir(e);
-            if constant_dip~=90 && isempty(proj_dir)==1
+            if fault_dip~=90 && isempty(proj_dir)==1
                 msgproj=sprintf('Missing projection direction information for %s.\nFault not plotted.',fault_name);
                 disp(msgproj)
             else
@@ -222,23 +226,23 @@ for i=1:length(fault_names)
                 for i=1:length(z_points(:,1))-1
                     for j=1:length(x_points(1,:))-1
                         if isempty(proj_dir)==1 %for faults which are vertical
-                            fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),constant_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
+                            fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),fault_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                         elseif proj_dir>=90 && proj_dir<=270 % for south dipping faults
                             if abs(z_points(i,j)/1000)<15
-                                fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),constant_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
+                                fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),fault_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                             else
                                 fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),shear_zone_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                             end
                        else % for north dipping faults
                            if abs(z_points(i,j)/1000)<15
-                               fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j+1)/1000,y_points(i,j+1)/1000,x_points(i,j)/1000,y_points(i,j)/1000,rake,slip_distribution(i,j),constant_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
+                               fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j+1)/1000,y_points(i,j+1)/1000,x_points(i,j)/1000,y_points(i,j)/1000,rake,slip_distribution(i,j),fault_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                            else
                                fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j+1)/1000,y_points(i,j+1)/1000,x_points(i,j)/1000,y_points(i,j)/1000,rake,slip_distribution(i,j),shear_zone_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                            end
                        end
                     end
                 end
-                clearvars -except grid_size depth maximum_slip fault_names fault_slip_name fid output_data_file filename min_x max_x min_y max_y UTM_zone UTM_letter kml_folder COUL_GRID_SIZE constant_dip rake PROJECTION_DIRECTION_FILE SHORT_FAULT_LENGTHS_FILE DIPS_FILE shear_zone_dip depth_ductile % clears all data except variables required for each loop
+                clearvars -except grid_size depth maximum_slip fault_names fault_slip_name fid output_data_file filename min_x max_x min_y max_y UTM_zone UTM_letter kml_folder COUL_GRID_SIZE rake PROJECTION_DIRECTION_FILE SHORT_FAULT_LENGTHS_FILE DIPS_FILE RAKES_FILE FAULT_DATA_PATH specified_shear_zone_dip depth_ductile % clears all data except variables required for each loop
             end
          end
       end

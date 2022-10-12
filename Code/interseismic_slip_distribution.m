@@ -34,7 +34,7 @@ if isnan(data_lon)==0 & isnan(data_lat)==0
         if isnan(dip(i))==0
             slip(i)=throw(i)/sind(dip(i));
         else
-            slip(i)=throw(i)/sind(constant_dip);
+            slip(i)=throw(i)/sind(shear_zone_dip);
         end
     end
     if length(utm_x)==2
