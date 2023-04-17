@@ -109,7 +109,7 @@ for i=1:length(fault_names)
             % calculating the grid size to use to depth (to ensure a whole number
             % of boxes, resulting elements will be rectangular rather than square
             if grid_size<=abs((depth/sind(fault_dip)))
-                    n=abs(round(fault_down_dip_length/1000)); % whole number of boxes that will fit into the fault_down_dip_length
+                    n=abs(round(fault_down_dip_length/grid_size)); % whole number of boxes that will fit into the fault_down_dip_length
                     grid_size_to_depth=-fault_down_dip_length/n;
             else 
                     grid_size_to_depth=-fault_down_dip_length;
@@ -228,13 +228,13 @@ for i=1:length(fault_names)
                         if isempty(proj_dir)==1 %for faults which are vertical
                             fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),fault_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                         elseif proj_dir>=90 && proj_dir<=270 % for south dipping faults
-                            if abs(z_points(i,j)/1000)<15
+                            if abs(round(z_points(i,j))/1000) < abs(depth/1000)
                                 fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),fault_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                             else
                                 fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j)/1000,y_points(i,j)/1000,x_points(i,j+1)/1000,y_points(i,j+1)/1000,rake,slip_distribution(i,j),shear_zone_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                             end
                        else % for north dipping faults
-                           if abs(z_points(i,j)/1000)<15
+                           if abs(round(z_points(i,j))/1000) < abs(depth/1000)
                                fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j+1)/1000,y_points(i,j+1)/1000,x_points(i,j)/1000,y_points(i,j)/1000,rake,slip_distribution(i,j),fault_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
                            else
                                fprintf (fid,'  1    %4.3f   %4.3f    %4.3f   %4.3f 100     %2.2f      %2.5f    %2.0f     %2.2f     %2.2f    %s\n', x_points(i,j+1)/1000,y_points(i,j+1)/1000,x_points(i,j)/1000,y_points(i,j)/1000,rake,slip_distribution(i,j),shear_zone_dip,abs(z_points(i,j)/1000),abs(z_points(i+1,j)/1000),fault_name);
